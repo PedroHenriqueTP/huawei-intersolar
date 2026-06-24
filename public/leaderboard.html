@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Huawei Intersolar 2026 - Leaderboard Global</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep-space: #0D0E12;
+      --emerald-green: #00E676;
+      --cyber-orange: #FF5722;
+      --slate-gray: #1E222B;
+      --text-primary: #F5F7FA;
+      --text-muted: #8F9CAE;
+      --glass-bg: rgba(30, 34, 43, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.08);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--bg-deep-space);
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 40px;
+      overflow-x: hidden;
+      background-image: radial-gradient(circle at 50% 0%, rgba(0, 230, 118, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 50% 100%, rgba(255, 87, 34, 0.05) 0%, transparent 50%);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 20px;
+    }
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+    header h1 span {
+      background: linear-gradient(135deg, var(--emerald-green), var(--cyber-orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    header .status-clock {
+      text-align: right;
+    }
+    header .status-clock h3 {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+    header .status-clock p {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .leaderboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      width: 100%;
+      flex-grow: 1;
+    }
+    .leaderboard-column {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+    .column-header {
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .column-header .icon-box {
+      width: 45px;
+      height: 45px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bike-header .icon-box {
+      background: rgba(0, 230, 118, 0.1);
+      border: 1px solid var(--emerald-green);
+    }
+    .bike-header h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--emerald-green);
+    }
+    .feet-header .icon-box {
+      background: rgba(255, 87, 34, 0.1);
+      border: 1px solid var(--cyber-orange);
+    }
+    .feet-header h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--cyber-orange);
+    }
+    .gen-header .icon-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .gen-header h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+    .ranking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-grow: 1;
+    }
+    .ranking-item {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      padding: 12px 18px;
+      transition: all 0.3s;
+    }
+    .ranking-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255,255,255,0.08);
+      transform: translateX(5px);
+    }
+    .ranking-item.top-three {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    .ranking-item.pos-1 {
+      border-left: 4px solid #FFD700; /* Gold */
+    }
+    .ranking-item.pos-2 {
+      border-left: 4px solid #C0C0C0; /* Silver */
+    }
+    .ranking-item.pos-3 {
+      border-left: 4px solid #CD7F32; /* Bronze */
+    }
+    .item-pos {
+      font-size: 1.3rem;
+      font-weight: 800;
+      width: 35px;
+      color: var(--text-muted);
+    }
+    .pos-1 .item-pos { color: #FFD700; }
+    .pos-2 .item-pos { color: #C0C0C0; }
+    .pos-3 .item-pos { color: #CD7F32; }
+
+    .item-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      flex-grow: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .item-score {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+    .bike-header ~ .ranking-list .item-score { color: var(--emerald-green); }
+    .feet-header ~ .ranking-list .item-score { color: var(--cyber-orange); }
+
+    .empty-msg {
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-style: italic;
+      text-align: center;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Huawei <span>FusionSolar</span> Leaderboard</h1>
+    <div class="status-clock">
+      <h3>Ranking em Tempo Real</h3>
+      <p id="liveClock">00:00:00</p>
+    </div>
+  </header>
+
+  <div class="leaderboard-grid">
+    
+    <!-- Column: Bike Energy -->
+    <div class="leaderboard-column">
+      <div class="column-header bike-header">
+        <div class="icon-box">
+          <svg style="width:24px;height:24px;fill:var(--emerald-green)" viewBox="0 0 24 24">
+            <path d="M15.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM5 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm14 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-8.2-1.9l-1.8-1.8c-.4-.4-1-.4-1.4 0-.4.4-.4 1 0 1.4l2.5 2.5c.4.4 1 .4 1.4 0l4.3-4.3c.4-.4.4-1 0-1.4s-1-.4-1.4 0l-3.6 3.6z"/>
+          </svg>
+        </div>
+        <h2>Bike Energy</h2>
+      </div>
+      <div class="ranking-list" id="bikeList">
+        <div class="empty-msg">Nenhuma partida registrada hoje.</div>
+      </div>
+    </div>
+
+    <!-- Column: Fast Feet -->
+    <div class="leaderboard-column">
+      <div class="column-header feet-header">
+        <div class="icon-box">
+          <svg style="width:24px;height:24px;fill:var(--cyber-orange)" viewBox="0 0 24 24">
+            <path d="M19.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM5 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm14 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-8.2-1.9l-1.8-1.8c-.4-.4-1-.4-1.4 0-.4.4-.4 1 0 1.4l2.5 2.5c.4.4 1 .4 1.4 0l4.3-4.3c.4-.4.4-1 0-1.4s-1-.4-1.4 0l-3.6 3.6z"/>
+          </svg>
+        </div>
+        <h2>Fast Feet</h2>
+      </div>
+      <div class="ranking-list" id="feetList">
+        <div class="empty-msg">Nenhuma partida registrada hoje.</div>
+      </div>
+    </div>
+
+    <!-- Column: Gerador de Energia -->
+    <div class="leaderboard-column">
+      <div class="column-header gen-header">
+        <div class="icon-box">
+          <svg style="width:24px;height:24px;fill:var(--text-primary)" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+        </div>
+        <h2>Gerador de Energia</h2>
+      </div>
+      <div class="ranking-list" id="genList">
+        <div class="empty-msg">Nenhuma partida registrada hoje.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      document.getElementById('liveClock').innerText = timeStr;
+    }
+    
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    async function fetchLeaderboard(type, listId) {
+      try {
+        const response = await fetch(`/session/leaderboard/${type}?limit=10`);
+        if (!response.ok) return;
+        const data = await response.json();
+        
+        const container = document.getElementById(listId);
+        if (data.length === 0) {
+          container.innerHTML = `<div class="empty-msg">Nenhuma partida registrada hoje.</div>`;
+          return;
+        }
+
+        let html = '';
+        data.forEach(item => {
+          const isTopThree = item.position <= 3;
+          const topClass = isTopThree ? 'top-three' : '';
+          const posClass = `pos-${item.position}`;
+          
+          html += `
+            <div class="ranking-item ${topClass} ${posClass}">
+              <div class="item-pos">#${item.position}</div>
+              <div class="item-name">${item.userName}</div>
+              <div class="item-score">${Math.round(item.score)}W</div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      } catch (err) {
+        console.error('Error fetching leaderboard for', type, err);
+      }
+    }
+
+    function pollLeaderboards() {
+      fetchLeaderboard('BIKE_ENERGY', 'bikeList');
+      fetchLeaderboard('FAST_FEET', 'feetList');
+      fetchLeaderboard('ENERGY_GENERATOR', 'genList');
+    }
+
+    // Initial load and poll every 3 seconds
+    pollLeaderboards();
+    setInterval(pollLeaderboards, 3000);
+  </script>
+</body>
+</html>
