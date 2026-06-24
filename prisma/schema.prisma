@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String      @id @default(uuid())
+  keyPassToken String      @unique // NFC Tag or QR Code hash
+  name         String
+  email        String      @unique
+  company      String?
+  phone        String?
+  createdAt    DateTime    @default(now())
+  sessions     Session[]
+  giftsClaimed GiftClaim[]
+}
+
+model Session {
+  id              String         @id @default(uuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activationType  ActivationType // BIKE_ENERGY, FAST_FEET, ENERGY_GENERATOR
+  machineId       String         // Ex: bike_01, fast_feet_01
+  score           Float          // Accumulated energy or score
+  metricsSummary  Json           // JSON containing cadence, time, etc.
+  completed       Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+}
+
+model Gift {
+  id          String      @id @default(uuid())
+  name        String      // Ex: "Chaveiro BESS 3D"
+  totalStock  Int
+  claimedQty  Int         @default(0)
+  claims      GiftClaim[]
+}
+
+model GiftClaim {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  giftId     String
+  gift       Gift     @relation(fields: [giftId], references: [id], onDelete: Cascade)
+  claimedAt  DateTime @default(now())
+}
+
+enum ActivationType {
+  BIKE_ENERGY
+  FAST_FEET
+  ENERGY_GENERATOR
+}
