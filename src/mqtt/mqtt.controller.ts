@@ -23,8 +23,12 @@ export class MqttController {
 
     // Normalizing telemetry attributes (supporting Portuguese PDF keys and English fallback)
     const score = Number(data.energia_acumulada ?? data.score ?? 0);
-    const cadence = Number(data.cadencia ?? data.rpm_manivela ?? data.velocidade ?? 0);
-    const timeRemaining = Number(data.tempo_restante ?? data.timeRemaining ?? 0);
+    const cadence = Number(
+      data.cadencia ?? data.rpm_manivela ?? data.velocidade ?? 0,
+    );
+    const timeRemaining = Number(
+      data.tempo_restante ?? data.timeRemaining ?? 0,
+    );
 
     // Update the session in memory (Redis)
     const updatedSession = await this.sessionService.updateActiveSessionScore(

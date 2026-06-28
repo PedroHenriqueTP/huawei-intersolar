@@ -10,7 +10,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       host: process.env.REDIS_HOST || 'localhost',
       port: Number(process.env.REDIS_PORT) || 6379,
     });
-    
+
     this.redisClient.on('connect', () => {
       console.log('Redis client connected.');
     });

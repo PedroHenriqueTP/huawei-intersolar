@@ -7,12 +7,7 @@ import { SocketModule } from './socket/socket.module';
 import { MqttModule } from './mqtt/mqtt.module';
 
 @Module({
-  imports: [
-    SessionModule,
-    OscModule,
-    SocketModule,
-    MqttModule,
-  ],
+  imports: [SessionModule, OscModule, SocketModule, MqttModule],
   controllers: [AppController],
   providers: [AppService],
 })

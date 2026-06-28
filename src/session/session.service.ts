@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { RedisService } from '../redis.service';
 import { ActivationType } from '@prisma/client';
@@ -18,8 +23,16 @@ export interface ActiveSession {
 
 @Injectable()
 export class SessionService implements OnModuleInit {
-  private readonly offlineUsersDir = path.join(process.cwd(), 'offline_queue', 'users');
-  private readonly offlineSessionsDir = path.join(process.cwd(), 'offline_queue', 'sessions');
+  private readonly offlineUsersDir = path.join(
+    process.cwd(),
+    'offline_queue',
+    'users',
+  );
+  private readonly offlineSessionsDir = path.join(
+    process.cwd(),
+    'offline_queue',
+    'sessions',
+  );
   private readonly inMemorySessions = new Map<string, ActiveSession>();
   private isSyncing = false;
 
@@ -32,7 +45,7 @@ export class SessionService implements OnModuleInit {
     // Ensure offline fallback folders exist
     fs.mkdirSync(this.offlineUsersDir, { recursive: true });
     fs.mkdirSync(this.offlineSessionsDir, { recursive: true });
-    
+
     // Auto-sync daemon: check database connection and synchronize offline queues every 10s
     setInterval(() => this.syncOfflineData(), 10000);
     console.log('Offline-first Sync Daemon initialized.');
@@ -42,16 +55,19 @@ export class SessionService implements OnModuleInit {
     return `session:active:${machineId}`;
   }
 
-  async registerUser(data: { name: string; email: string; company?: string; phone?: string; keyPassToken: string }) {
+  async registerUser(data: {
+    name: string;
+    email: string;
+    company?: string;
+    phone?: string;
+    keyPassToken: string;
+  }) {
     try {
       // 1. Try primary PostgreSQL write
       const existing = await this.prisma.user.findFirst({
         where: {
-          OR: [
-            { email: data.email },
-            { keyPassToken: data.keyPassToken }
-          ]
-        }
+          OR: [{ email: data.email }, { keyPassToken: data.keyPassToken }],
+        },
       });
 
       if (existing) {
@@ -69,10 +85,15 @@ export class SessionService implements OnModuleInit {
         throw error;
       }
 
-      console.warn('PostgreSQL offline. Storing visitor registration locally...');
-      
+      console.warn(
+        'PostgreSQL offline. Storing visitor registration locally...',
+      );
+
       // 2. Fallback: Write JSON buffering payload locally
-      const filePath = path.join(this.offlineUsersDir, `${data.keyPassToken}.json`);
+      const filePath = path.join(
+        this.offlineUsersDir,
+        `${data.keyPassToken}.json`,
+      );
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
 
       // Return offline simulated user structure to unblock physical interaction
@@ -88,7 +109,11 @@ export class SessionService implements OnModuleInit {
     }
   }
 
-  async bindSession(data: { keyPassToken: string; machineId: string; activationType: ActivationType }) {
+  async bindSession(data: {
+    keyPassToken: string;
+    machineId: string;
+    activationType: ActivationType;
+  }) {
     let user: any = null;
 
     try {
@@ -97,12 +122,17 @@ export class SessionService implements OnModuleInit {
         where: { keyPassToken: data.keyPassToken },
       });
     } catch (error) {
-      console.warn('PostgreSQL connection offline. Searching in offline registrations...');
+      console.warn(
+        'PostgreSQL connection offline. Searching in offline registrations...',
+      );
     }
 
     // 2. Fallback: If DB down or not found, check offline files
     if (!user) {
-      const offlinePath = path.join(this.offlineUsersDir, `${data.keyPassToken}.json`);
+      const offlinePath = path.join(
+        this.offlineUsersDir,
+        `${data.keyPassToken}.json`,
+      );
       if (fs.existsSync(offlinePath)) {
         const raw = fs.readFileSync(offlinePath, 'utf-8');
         const offlineUser = JSON.parse(raw);
@@ -115,7 +145,9 @@ export class SessionService implements OnModuleInit {
     }
 
     if (!user) {
-      throw new NotFoundException(`Visitor with Key Pass '${data.keyPassToken}' not found.`);
+      throw new NotFoundException(
+        `Visitor with Key Pass '${data.keyPassToken}' not found.`,
+      );
     }
 
     const activeSession: ActiveSession = {
@@ -157,7 +189,12 @@ export class SessionService implements OnModuleInit {
     return this.inMemorySessions.get(machineId) || null;
   }
 
-  async updateActiveSessionScore(machineId: string, score: number, cadence: number, timeRemaining: number) {
+  async updateActiveSessionScore(
+    machineId: string,
+    score: number,
+    cadence: number,
+    timeRemaining: number,
+  ) {
     const session = await this.getActiveSession(machineId);
     if (!session) return null;
 
@@ -179,7 +216,9 @@ export class SessionService implements OnModuleInit {
   async endSession(machineId: string, finalScore: number, metricsSummary: any) {
     const session = await this.getActiveSession(machineId);
     if (!session) {
-      throw new NotFoundException(`No active session found on machine '${machineId}'`);
+      throw new NotFoundException(
+        `No active session found on machine '${machineId}'`,
+      );
     }
 
     let dbSession: any = null;
@@ -200,7 +239,9 @@ export class SessionService implements OnModuleInit {
         });
         savedToDb = true;
       } catch (dbError) {
-        console.warn('PostgreSQL write failed. Queueing session result locally...');
+        console.warn(
+          'PostgreSQL write failed. Queueing session result locally...',
+        );
       }
     }
 
@@ -216,9 +257,13 @@ export class SessionService implements OnModuleInit {
         score: finalScore,
         metricsSummary: metricsSummary || {},
         completed: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      fs.writeFileSync(filePath, JSON.stringify(offlinePayload, null, 2), 'utf-8');
+      fs.writeFileSync(
+        filePath,
+        JSON.stringify(offlinePayload, null, 2),
+        'utf-8',
+      );
       dbSession = offlinePayload;
     }
 
@@ -226,9 +271,15 @@ export class SessionService implements OnModuleInit {
     try {
       const redis = this.redis.getClient();
       const leaderboardKey = `leaderboard:${session.activationType}`;
-      await redis.zadd(leaderboardKey, finalScore, JSON.stringify({ userId: session.userId, userName: session.userName }));
+      await redis.zadd(
+        leaderboardKey,
+        finalScore,
+        JSON.stringify({ userId: session.userId, userName: session.userName }),
+      );
     } catch (redisError) {
-      console.warn('Failed to update Redis leaderboard. Result queued in local DB/files.');
+      console.warn(
+        'Failed to update Redis leaderboard. Result queued in local DB/files.',
+      );
     }
 
     // Clear active session
@@ -249,14 +300,19 @@ export class SessionService implements OnModuleInit {
     try {
       const redis = this.redis.getClient();
       const leaderboardKey = `leaderboard:${activationType}`;
-      const members = await redis.zrevrange(leaderboardKey, 0, limit - 1, 'WITHSCORES');
+      const members = await redis.zrevrange(
+        leaderboardKey,
+        0,
+        limit - 1,
+        'WITHSCORES',
+      );
 
       const leaderboard: any[] = [];
       for (let i = 0; i < members.length; i += 2) {
         const userInfo = JSON.parse(members[i]);
         const score = Number(members[i + 1]);
         leaderboard.push({
-          position: (i / 2) + 1,
+          position: i / 2 + 1,
           userId: userInfo.userId,
           userName: userInfo.userName,
           score,
@@ -283,7 +339,9 @@ export class SessionService implements OnModuleInit {
       return;
     }
 
-    console.log('Database connection detected online. Synchronizing local buffers...');
+    console.log(
+      'Database connection detected online. Synchronizing local buffers...',
+    );
 
     try {
       // 1. Synchronize Offline Users
@@ -300,9 +358,9 @@ export class SessionService implements OnModuleInit {
               where: {
                 OR: [
                   { email: userData.email },
-                  { keyPassToken: userData.keyPassToken }
-                ]
-              }
+                  { keyPassToken: userData.keyPassToken },
+                ],
+              },
             });
 
             if (!user) {
@@ -321,7 +379,11 @@ export class SessionService implements OnModuleInit {
                 const sData = JSON.parse(sRaw);
                 if (sData.userId === `offline-${userData.keyPassToken}`) {
                   sData.userId = user.id;
-                  fs.writeFileSync(sFilePath, JSON.stringify(sData, null, 2), 'utf-8');
+                  fs.writeFileSync(
+                    sFilePath,
+                    JSON.stringify(sData, null, 2),
+                    'utf-8',
+                  );
                 }
               }
             }
@@ -329,7 +391,10 @@ export class SessionService implements OnModuleInit {
             // Remove file
             fs.unlinkSync(filePath);
           } catch (dbErr) {
-            console.error(`Failed syncing offline user ${userData.name}:`, dbErr);
+            console.error(
+              `Failed syncing offline user ${userData.name}:`,
+              dbErr,
+            );
           }
         }
       }
@@ -358,24 +423,35 @@ export class SessionService implements OnModuleInit {
                 metricsSummary: sessionData.metricsSummary,
                 completed: true,
                 createdAt: new Date(sessionData.createdAt),
-              }
+              },
             });
 
             // Update Redis Leaderboard
             try {
               const redis = this.redis.getClient();
               const leaderboardKey = `leaderboard:${sessionData.activationType}`;
-              const user = await this.prisma.user.findUnique({ where: { id: sessionData.userId } });
+              const user = await this.prisma.user.findUnique({
+                where: { id: sessionData.userId },
+              });
               const userName = user ? user.name : 'Unknown';
-              await redis.zadd(leaderboardKey, sessionData.score, JSON.stringify({ userId: sessionData.userId, userName }));
+              await redis.zadd(
+                leaderboardKey,
+                sessionData.score,
+                JSON.stringify({ userId: sessionData.userId, userName }),
+              );
             } catch (redisErr) {
               console.warn('Leaderboard sync failed:', redisErr);
             }
 
-            console.log(`Synced offline session for userId ${sessionData.userId}`);
+            console.log(
+              `Synced offline session for userId ${sessionData.userId}`,
+            );
             fs.unlinkSync(filePath);
           } catch (dbErr) {
-            console.error(`Failed syncing offline session ${sessionData.id}:`, dbErr);
+            console.error(
+              `Failed syncing offline session ${sessionData.id}:`,
+              dbErr,
+            );
           }
         }
       }

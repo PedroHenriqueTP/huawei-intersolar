@@ -1,7 +1,22 @@
-import { Controller, Post, Get, Body, Param, Query, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  Query,
+  ParseIntPipe,
+  DefaultValuePipe,
+} from '@nestjs/common';
 import { SessionService } from './session.service';
 import { ActivationType } from '@prisma/client';
-import { IsString, IsNotEmpty, IsEmail, IsOptional, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEmail,
+  IsOptional,
+  IsEnum,
+} from 'class-validator';
 
 class RegisterUserDto {
   @IsString()

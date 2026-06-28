@@ -9,7 +9,9 @@ export class OscService implements OnModuleInit, OnModuleDestroy {
     const host = process.env.RESOLUME_HOST || 'localhost';
     const port = Number(process.env.RESOLUME_PORT) || 7000;
     this.client = new Client(host, port);
-    console.log(`OSC Bridge initialized. Sending UDP packets to ${host}:${port}`);
+    console.log(
+      `OSC Bridge initialized. Sending UDP packets to ${host}:${port}`,
+    );
   }
 
   async send(address: string, ...args: any[]): Promise<void> {
@@ -39,12 +41,18 @@ export class OscService implements OnModuleInit, OnModuleDestroy {
 
     // Check for milestones
     // Meta milestone triggers on Resolume Column selectors
-    if (session.score >= targetEnergy * 0.8 && (session.score - session.cadence) < targetEnergy * 0.8) {
+    if (
+      session.score >= targetEnergy * 0.8 &&
+      session.score - session.cadence < targetEnergy * 0.8
+    ) {
       // 80% milestone -> Column 2 trigger
       await this.send('/composition/columns/2/connect', 1);
     }
-    
-    if (session.score >= targetEnergy && (session.score - session.cadence) < targetEnergy) {
+
+    if (
+      session.score >= targetEnergy &&
+      session.score - session.cadence < targetEnergy
+    ) {
       // 100% milestone -> Column 3 trigger (Win Celebration)
       await this.send('/composition/columns/3/connect', 1);
       await this.send('/huawei/active_trigger', 'WINNER');
