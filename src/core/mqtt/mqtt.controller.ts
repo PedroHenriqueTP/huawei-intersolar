@@ -1,8 +1,9 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
 import { EventPattern, Payload, Ctx, MqttContext } from '@nestjs/microservices';
 import { SessionService } from '../session/session.service';
 import { TelemetryGateway } from '../socket/telemetry.gateway';
 import { OscService } from '../osc/osc.service';
+import { IActivationPlugin } from '../../activations/activation.interface';
 
 @Controller()
 export class MqttController {
@@ -10,6 +11,8 @@ export class MqttController {
     private readonly sessionService: SessionService,
     private readonly telemetryGateway: TelemetryGateway,
     private readonly oscService: OscService,
+    @Inject('ACTIVE_ACTIVATION')
+    private readonly activePlugin: IActivationPlugin,
   ) {}
 
   @EventPattern('huawei/ativação/+')
@@ -21,14 +24,12 @@ export class MqttController {
 
     if (!data) return;
 
-    // Normalizing telemetry attributes (supporting Portuguese PDF keys and English fallback)
-    const score = Number(data.energia_acumulada ?? data.score ?? 0);
-    const cadence = Number(
-      data.cadencia ?? data.rpm_manivela ?? data.velocidade ?? 0,
-    );
-    const timeRemaining = Number(
-      data.tempo_restante ?? data.timeRemaining ?? 0,
-    );
+    // Use active plugin to normalize incoming telemetry
+    const { score, cadence, timeRemaining } = this.activePlugin.normalizeTelemetry(data);
+
+    // Fetch previous score to detect milestones correctly
+    const activeSession = await this.sessionService.getActiveSession(machineId);
+    const previousScore = activeSession ? activeSession.score : 0;
 
     // Update the session in memory (Redis)
     const updatedSession = await this.sessionService.updateActiveSessionScore(
@@ -43,28 +44,24 @@ export class MqttController {
       this.telemetryGateway.broadcastTelemetry(machineId, updatedSession);
 
       // 2. Dispatch OSC controls to Resolume
-      await this.oscService.sendTelemetryOsc(machineId, updatedSession);
+      await this.oscService.sendTelemetryOsc(machineId, updatedSession, previousScore);
 
       // 3. Check for game completion
       if (timeRemaining <= 0) {
         const metrics = {
           averageCadence: cadence,
           totalEnergy: score,
-          duration: 60, // Assumed 60s session
+          duration: this.activePlugin.duration,
         };
 
         // Persist to Postgres and clear active cache
         await this.sessionService.endSession(machineId, score, metrics);
 
-        // Generate Socratic feedback
-        let socraticMsg = `Parabéns, ${updatedSession.userName}! Você gerou ${score}W de energia limpa.`;
-        if (updatedSession.activationType === 'BIKE_ENERGY') {
-          socraticMsg = `Incrível, ${updatedSession.userName}! Você gerou ${score}W pedalando, o suficiente para alimentar uma geladeira inverter Huawei por 4 horas!`;
-        } else if (updatedSession.activationType === 'FAST_FEET') {
-          socraticMsg = `Parabéns, ${updatedSession.userName}! Seus pulos geraram ${score}W, carregando completamente 15 smartphones na bateria BESS residencial Huawei!`;
-        } else if (updatedSession.activationType === 'ENERGY_GENERATOR') {
-          socraticMsg = `Grande esforço, ${updatedSession.userName}! Com ${score}W gerados manualmente, você acendeu um painel demonstrativo Huawei em tempo recorde!`;
-        }
+        // Generate Socratic feedback using plugin
+        const socraticMsg = this.activePlugin.getSocraticFeedback(
+          updatedSession.userName,
+          score,
+        );
 
         // Broadcast completion to displays
         this.telemetryGateway.broadcastSessionEnd(machineId, {

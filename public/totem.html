@@ -3,38 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Huawei Intersolar 2026 - Totem Display</title>
+  <title>Huawei - Totem Display</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css">
   <style>
-    :root {
-      --bg-deep-space: #0D0E12;
-      --emerald-green: #00E676;
-      --cyber-orange: #FF5722;
-      --slate-gray: #1E222B;
-      --text-primary: #F5F7FA;
-      --text-muted: #8F9CAE;
-      --glass-bg: rgba(30, 34, 43, 0.45);
-      --glass-border: rgba(255, 255, 255, 0.08);
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
     body {
-      background-color: var(--bg-deep-space);
-      color: var(--text-primary);
-      font-family: 'Outfit', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 30px;
+      background-image: linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%);
       overflow: hidden;
-      background-image: radial-gradient(circle at 50% 50%, rgba(30, 34, 43, 0.8) 0%, var(--bg-deep-space) 100%);
+      padding: 30px;
     }
     .container {
       width: 100%;
@@ -43,6 +21,7 @@
       flex-direction: column;
       align-items: center;
       gap: 25px;
+      z-index: 1;
     }
     .top-bar {
       width: 100%;
@@ -50,42 +29,33 @@
       justify-content: space-between;
       align-items: center;
       padding: 0 10px;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 15px;
     }
     .top-bar h2 {
       font-size: 1.5rem;
       font-weight: 800;
       letter-spacing: 1px;
+      color: var(--text-primary);
     }
     .top-bar h2 span {
-      color: var(--emerald-green);
+      color: var(--huawei-red);
     }
     .machine-selector {
-      background: var(--slate-gray);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--bg-primary);
+      border: 1px solid var(--border-light);
       border-radius: 8px;
       color: var(--text-primary);
-      padding: 6px 12px;
+      padding: 8px 16px;
       font-family: inherit;
       font-size: 0.9rem;
       cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition-smooth);
     }
-    .glass-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      width: 100%;
-      min-height: 480px;
-      padding: 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-      text-align: center;
-      position: relative;
-      transition: all 0.5s ease;
+    .machine-selector:focus {
+      outline: none;
+      border-color: var(--huawei-red);
     }
     
     /* State: Idle */
@@ -93,27 +63,27 @@
       width: 140px;
       height: 140px;
       border-radius: 50%;
-      background: rgba(0, 230, 118, 0.05);
-      border: 2px dashed rgba(0, 230, 118, 0.3);
+      background: var(--huawei-red-light);
+      border: 2px dashed var(--huawei-red);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 30px;
+      margin: 0 auto 30px auto;
       animation: pulse 2s infinite;
     }
     .state-idle svg {
       width: 60px;
       height: 60px;
-      fill: var(--emerald-green);
+      fill: var(--huawei-red);
     }
     .state-idle h3 {
       font-size: 1.8rem;
       font-weight: 600;
       margin-bottom: 12px;
-      max-width: 600px;
+      color: var(--text-primary);
     }
     .state-idle p {
-      color: var(--text-muted);
+      color: var(--text-secondary);
       font-size: 1.1rem;
       font-weight: 300;
     }
@@ -134,10 +104,12 @@
       text-align: left;
     }
     .active-left h3 {
-      font-size: 1.4rem;
-      font-weight: 300;
-      color: var(--text-muted);
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-secondary);
       margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
     }
     .active-left h4 {
       font-size: 2.2rem;
@@ -146,7 +118,7 @@
       color: var(--text-primary);
     }
     .active-left h4 span {
-      color: var(--emerald-green);
+      color: var(--huawei-red);
     }
     .gauge-wrapper {
       position: relative;
@@ -154,26 +126,28 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      border-left: 1px solid var(--border-light);
     }
     .gauge-value {
-      font-size: 4.5rem;
+      font-size: 5rem;
       font-weight: 800;
       color: var(--text-primary);
       line-height: 1;
     }
     .gauge-label {
       font-size: 1.1rem;
-      color: var(--text-muted);
-      margin-top: 5px;
+      color: var(--text-secondary);
+      margin-top: 8px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
+      font-weight: 600;
     }
     .timer-badge {
       position: absolute;
       top: -20px;
       right: -20px;
-      background: var(--cyber-orange);
-      color: var(--text-primary);
+      background: var(--huawei-red);
+      color: var(--text-white);
       font-size: 1.6rem;
       font-weight: 800;
       width: 80px;
@@ -182,8 +156,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 20px rgba(255, 87, 34, 0.4);
-      border: 3px solid var(--bg-deep-space);
+      box-shadow: 0 4px 15px rgba(238, 0, 0, 0.25);
+      border: 3px solid var(--bg-primary);
     }
     .progress-section {
       margin-top: 40px;
@@ -194,28 +168,28 @@
       display: flex;
       justify-content: space-between;
       font-size: 0.95rem;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       margin-bottom: 10px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
+      font-weight: 600;
     }
     .progress-section label span.val {
-      color: var(--emerald-green);
-      font-weight: 600;
+      color: var(--huawei-red);
+      font-weight: 800;
     }
     .energy-loader-container {
       width: 100%;
       height: 16px;
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--bg-secondary);
       border-radius: 8px;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.05);
+      border: 1px solid var(--border-light);
     }
     .energy-loader-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, var(--cyber-orange), var(--emerald-green));
-      box-shadow: 0 0 15px rgba(0, 230, 118, 0.4);
+      background: var(--huawei-red);
       border-radius: 8px;
       transition: width 0.1s linear;
     }
@@ -227,7 +201,7 @@
     .state-completed h3 {
       font-size: 2.2rem;
       font-weight: 800;
-      color: var(--emerald-green);
+      color: var(--huawei-red);
       margin-bottom: 20px;
     }
     .state-completed p.socratic-msg {
@@ -235,41 +209,26 @@
       font-weight: 300;
       line-height: 1.6;
       max-width: 700px;
-      margin-bottom: 40px;
+      margin: 0 auto 40px auto;
       color: var(--text-primary);
     }
     .state-completed p.socratic-msg strong {
-      color: var(--cyber-orange);
-      font-weight: 600;
-    }
-    .btn-reset {
-      background: var(--slate-gray);
-      color: var(--text-primary);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 12px 30px;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.3s;
-    }
-    .btn-reset:hover {
-      background: rgba(255,255,255,0.1);
-      border-color: var(--emerald-green);
+      color: var(--huawei-red);
+      font-weight: 800;
     }
 
     @keyframes pulse {
       0% {
         transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.2);
+        box-shadow: 0 0 0 0 rgba(238, 0, 0, 0.2);
       }
       70% {
         transform: scale(1.05);
-        box-shadow: 0 0 0 20px rgba(0, 230, 118, 0);
+        box-shadow: 0 0 0 20px rgba(238, 0, 0, 0);
       }
       100% {
         transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(0, 230, 118, 0);
+        box-shadow: 0 0 0 0 rgba(238, 0, 0, 0);
       }
     }
   </style>
@@ -278,7 +237,7 @@
 
   <div class="container">
     <div class="top-bar">
-      <h2>Huawei <span>FusionSolar</span></h2>
+      <h2>Huawei <span>Hub de Ativações</span></h2>
       <select id="machineSelect" class="machine-selector" onchange="changeMachine()">
         <option value="bike_01">Estação: Bike Energy 01</option>
         <option value="bike_02">Estação: Bike Energy 02</option>
@@ -288,7 +247,7 @@
     </div>
 
     <!-- Main Card -->
-    <div id="totemCard" class="glass-card">
+    <div id="totemCard" class="clean-card" style="max-width: 900px; min-height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative;">
       
       <!-- IDLE STATE -->
       <div id="panelIdle" class="state-idle">
@@ -309,7 +268,7 @@
           <div class="active-left">
             <h3>Competidor Ativo</h3>
             <h4 id="competitorName">Carregando...</h4>
-            <p style="color: var(--text-muted); font-size: 1.05rem;" id="activationMessage">
+            <p style="color: var(--text-secondary); font-size: 1.05rem;" id="activationMessage">
               Pedale com ritmo constante para acumular energia!
             </p>
           </div>
@@ -337,7 +296,7 @@
         <p class="socratic-msg" id="socraticFeedback">
           Carregando feedback...
         </p>
-        <button class="btn-reset" onclick="resetPanel()">Voltar ao Início</button>
+        <button class="btn-secondary" style="max-width: 250px;" onclick="resetPanel()">Voltar ao Início</button>
       </div>
 
     </div>

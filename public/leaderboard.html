@@ -3,91 +3,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Huawei Intersolar 2026 - Leaderboard Global</title>
+  <title>Huawei - Leaderboard Global</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css">
   <style>
-    :root {
-      --bg-deep-space: #0D0E12;
-      --emerald-green: #00E676;
-      --cyber-orange: #FF5722;
-      --slate-gray: #1E222B;
-      --text-primary: #F5F7FA;
-      --text-muted: #8F9CAE;
-      --glass-bg: rgba(30, 34, 43, 0.45);
-      --glass-border: rgba(255, 255, 255, 0.08);
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
     body {
-      background-color: var(--bg-deep-space);
-      color: var(--text-primary);
-      font-family: 'Outfit', sans-serif;
-      min-height: 100vh;
+      background-image: linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%);
+      padding: 40px;
       display: flex;
       flex-direction: column;
-      padding: 40px;
+      justify-content: flex-start;
+      align-items: stretch;
       overflow-x: hidden;
-      background-image: radial-gradient(circle at 50% 0%, rgba(0, 230, 118, 0.05) 0%, transparent 50%),
-                        radial-gradient(circle at 50% 100%, rgba(255, 87, 34, 0.05) 0%, transparent 50%);
     }
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 40px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid var(--border-light);
       padding-bottom: 20px;
+      z-index: 1;
     }
     header h1 {
       font-size: 2.2rem;
       font-weight: 800;
+      color: var(--text-primary);
       letter-spacing: 1px;
     }
     header h1 span {
-      background: linear-gradient(135deg, var(--emerald-green), var(--cyber-orange));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--huawei-red);
     }
     header .status-clock {
       text-align: right;
     }
     header .status-clock h3 {
-      font-size: 1.1rem;
-      color: var(--text-muted);
-      font-weight: 300;
+      font-size: 1rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
     header .status-clock p {
-      font-size: 1.5rem;
-      font-weight: 600;
+      font-size: 1.6rem;
+      font-weight: 800;
       color: var(--text-primary);
+      margin-top: 4px;
     }
     .leaderboard-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 30px;
       width: 100%;
-      flex-grow: 1;
+      z-index: 1;
     }
     .leaderboard-column {
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
       padding: 30px;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      box-shadow: var(--glass-shadow);
+      transition: var(--transition-smooth);
+    }
+    .leaderboard-column:hover {
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.06);
     }
     .column-header {
       margin-bottom: 25px;
       padding-bottom: 15px;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.03);
+      border-bottom: 2px solid var(--border-light);
       display: flex;
       align-items: center;
       gap: 15px;
@@ -99,30 +87,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      background: var(--huawei-red-light);
+      border: 1px solid var(--huawei-red);
     }
-    .bike-header .icon-box {
-      background: rgba(0, 230, 118, 0.1);
-      border: 1px solid var(--emerald-green);
-    }
-    .bike-header h2 {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: var(--emerald-green);
-    }
-    .feet-header .icon-box {
-      background: rgba(255, 87, 34, 0.1);
-      border: 1px solid var(--cyber-orange);
-    }
-    .feet-header h2 {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: var(--cyber-orange);
-    }
-    .gen-header .icon-box {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .gen-header h2 {
+    .column-header h2 {
       font-size: 1.4rem;
       font-weight: 800;
       color: var(--text-primary);
@@ -136,20 +104,18 @@
     .ranking-item {
       display: flex;
       align-items: center;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      border-radius: 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
       padding: 12px 18px;
-      transition: all 0.3s;
+      transition: var(--transition-smooth);
     }
     .ranking-item:hover {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255,255,255,0.08);
+      border-color: var(--text-secondary);
       transform: translateX(5px);
     }
     .ranking-item.top-three {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
     }
     .ranking-item.pos-1 {
       border-left: 4px solid #FFD700; /* Gold */
@@ -164,7 +130,7 @@
       font-size: 1.3rem;
       font-weight: 800;
       width: 35px;
-      color: var(--text-muted);
+      color: var(--text-secondary);
     }
     .pos-1 .item-pos { color: #FFD700; }
     .pos-2 .item-pos { color: #C0C0C0; }
@@ -173,6 +139,7 @@
     .item-name {
       font-size: 1.1rem;
       font-weight: 600;
+      color: var(--text-primary);
       flex-grow: 1;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -181,13 +148,11 @@
     .item-score {
       font-size: 1.2rem;
       font-weight: 800;
-      color: var(--text-primary);
+      color: var(--huawei-red);
     }
-    .bike-header ~ .ranking-list .item-score { color: var(--emerald-green); }
-    .feet-header ~ .ranking-list .item-score { color: var(--cyber-orange); }
 
     .empty-msg {
-      color: var(--text-muted);
+      color: var(--text-secondary);
       font-size: 1rem;
       font-style: italic;
       text-align: center;
@@ -209,9 +174,9 @@
     
     <!-- Column: Bike Energy -->
     <div class="leaderboard-column">
-      <div class="column-header bike-header">
+      <div class="column-header">
         <div class="icon-box">
-          <svg style="width:24px;height:24px;fill:var(--emerald-green)" viewBox="0 0 24 24">
+          <svg style="width:24px;height:24px;fill:var(--huawei-red)" viewBox="0 0 24 24">
             <path d="M15.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM5 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm14 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-8.2-1.9l-1.8-1.8c-.4-.4-1-.4-1.4 0-.4.4-.4 1 0 1.4l2.5 2.5c.4.4 1 .4 1.4 0l4.3-4.3c.4-.4.4-1 0-1.4s-1-.4-1.4 0l-3.6 3.6z"/>
           </svg>
         </div>
@@ -224,9 +189,9 @@
 
     <!-- Column: Fast Feet -->
     <div class="leaderboard-column">
-      <div class="column-header feet-header">
+      <div class="column-header">
         <div class="icon-box">
-          <svg style="width:24px;height:24px;fill:var(--cyber-orange)" viewBox="0 0 24 24">
+          <svg style="width:24px;height:24px;fill:var(--huawei-red)" viewBox="0 0 24 24">
             <path d="M19.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM5 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm14 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-8.2-1.9l-1.8-1.8c-.4-.4-1-.4-1.4 0-.4.4-.4 1 0 1.4l2.5 2.5c.4.4 1 .4 1.4 0l4.3-4.3c.4-.4.4-1 0-1.4s-1-.4-1.4 0l-3.6 3.6z"/>
           </svg>
         </div>
@@ -239,9 +204,9 @@
 
     <!-- Column: Gerador de Energia -->
     <div class="leaderboard-column">
-      <div class="column-header gen-header">
+      <div class="column-header">
         <div class="icon-box">
-          <svg style="width:24px;height:24px;fill:var(--text-primary)" viewBox="0 0 24 24">
+          <svg style="width:24px;height:24px;fill:var(--huawei-red)" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
           </svg>
         </div>
